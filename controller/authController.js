@@ -1,4 +1,5 @@
 const User=require('../model/UserSchema');
+const MissingPerson=require('../model/missingPersonSchema')
 const bcrypt=require('bcryptjs');
 const uploadToCloudinary=require('./cloudinaryFiles');
 
@@ -92,8 +93,6 @@ const registerUser=async(req,res)=> {
     }
   };
   
- 
-  
 //getUserProfile 
   const getUserProfile = async (req, res) => {
     try {
@@ -117,6 +116,79 @@ const registerUser=async(req,res)=> {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+
+  const submitMissingPersonReport = async (req, res) => {
+    try {
+      const {
+        fullName,
+        nickname,
+        dateOfBirth,
+        gender,
+        height,
+        weight,
+        eyeColor,
+        hairColor,
+        distinguishingFeatures,
+        lastSeenDate,
+        lastSeenLocation,
+        clothingDescription,
+        circumstances,
+        reporterName,
+        relationship,
+        phoneNumber,
+        email,
+        reward,
+        medicalConditions,
+        languagesSpoken,
+        otherInfo,
+      } = req.body;
+  
+      // Prepare report data with the fields from the request body
+      const reportData = {
+        fullName,
+        nickname,
+        dateOfBirth,
+        gender,
+        height,
+        weight,
+        eyeColor,
+        hairColor,
+        distinguishingFeatures,
+        lastSeenDate,
+        lastSeenLocation,
+        clothingDescription,
+        circumstances,
+        reporterName,
+        relationship,
+        phoneNumber,
+        email,
+        reward,
+        medicalConditions,
+        languagesSpoken,
+        otherInfo,
+      };
+  
+      // If photo is provided, upload to Cloudinary
+      if (req.file) {
+        const photoResult = await uploadToCloudinary(
+          req.file.buffer, 
+          `missingReports/${fullName}-${Date.now()}`
+        );
+        reportData.photo = photoResult.secure_url;
+      }
+  
+      // Create a new missing person report and save to the database
+      const newReport = new MissingPerson(reportData);
+      await newReport.save();
+  
+      // Respond with success
+      res.status(200).json({ message: "Report submitted successfully!", newReport });
+    } catch (error) {
+      console.error("Error submitting report:", error.message);
+      res.status(500).json({ message: "Error submitting report", error });
+    }
+  };
+  
   
 
-  module.exports={registerUser, loginUser, updateUserProfile, getUserProfile};
+  module.exports={registerUser, loginUser, updateUserProfile, getUserProfile, submitMissingPersonReport};
