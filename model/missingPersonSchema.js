@@ -4,6 +4,7 @@ const missingPersonSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   nickname: { type: String },
   dateOfBirth: { type: Date, required: true },
+  aadhar:{ type: String, required: true },
   gender: { type: String, enum: ['male', 'female', 'other'], required: true },
   photo: { type: String }, // URL or path to the uploaded photo
   height: { type: String, required: true },

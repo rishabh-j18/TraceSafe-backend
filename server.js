@@ -1,3 +1,5 @@
+const roleRoutes = require('./router/roleRoutes');
+
 const express = require('express');
 const cors= require('cors');
 const connectDB = require('./db/db'); // Import the database connection function
@@ -9,6 +11,9 @@ require('dotenv').config({path:'./.env'});
 // Initialize Express app
 const app = express();
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/api/roles', roleRoutes);
+
 
 // Middleware to parse JSON data
 app.use(express.json());

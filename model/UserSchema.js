@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema(
     role: { type: String, enum: ["user", "legalman","admin"], default: "user" },
 
     // New Fields
-    aadhar: { type: String, required: true, default: "" },
+    aadhar: { type: String, default: "" },
     occupation: { type: String },
     address: { type: String },
     profilePhoto: { type: String, default: "" }, // Store base64 string or URL

@@ -1,5 +1,6 @@
 const User=require('../model/UserSchema');
 const MissingPerson=require('../model/missingPersonSchema')
+const Location = require('../model/locationSchema')
 const bcrypt=require('bcryptjs');
 const uploadToCloudinary=require('./cloudinaryFiles');
 
@@ -123,7 +124,9 @@ const registerUser=async(req,res)=> {
         fullName,
         nickname,
         dateOfBirth,
+        aadhar,
         gender,
+        photo,
         height,
         weight,
         eyeColor,
@@ -148,7 +151,9 @@ const registerUser=async(req,res)=> {
         fullName,
         nickname,
         dateOfBirth,
+        aadhar,
         gender,
+        photo,
         height,
         weight,
         eyeColor,
@@ -169,7 +174,7 @@ const registerUser=async(req,res)=> {
       };
   
       // If photo is provided, upload to Cloudinary
-      if (req.file) {
+      if (req.file?.photo?.[0]) {
         const photoResult = await uploadToCloudinary(
           req.file.buffer, 
           `missingReports/${fullName}-${Date.now()}`
@@ -189,6 +194,81 @@ const registerUser=async(req,res)=> {
     }
   };
   
-  
+  const getMissingPerson = async(req,res) =>{
+   try{
+    const data= await MissingPerson.find();
 
-  module.exports={registerUser, loginUser, updateUserProfile, getUserProfile, submitMissingPersonReport};
+    res.status(200).json(data);
+    
+   }
+   catch(error)
+   {
+    console.error('Error fetching details', error);
+    res.status(500).json({error:'Failed to fetch users'});
+   }
+  };
+
+  const flagMissing = async (req, res) => {
+    try {
+      // Extract form data from request body
+      const {
+        location,
+        coordinates,
+        dateTime,
+        description,
+        reporterName,
+        contactInfo,
+        witnessName,
+        witnessContact,
+        additionalNotes,
+      } = req.body;
+      const parsedCoordinates = 
+  typeof coordinates === 'string' ? JSON.parse(coordinates) : coordinates;
+      const locationData = {
+        location,
+        coordinates: parsedCoordinates, // Ensure coordinates are parsed correctly
+        dateTime,
+        description,
+        reporterName,
+        contactInfo,
+        witnessName,
+        witnessContact,
+        additionalNotes,
+      };
+  
+      // Upload photos to Cloudinary (if any)
+      if (req.files?.photos?.length > 0) {
+        const photoUrls = await Promise.all(
+          req.files.photos.map(async (file) => {
+            const { secure_url } = await uploadToCloudinary(file.buffer, `photos/${location}-${Date.now()}`);
+            return secure_url;
+          })
+        );
+        locationData.photos = photoUrls;
+      }
+  
+      // Upload video to Cloudinary (if any)
+      if (req.files?.video?.[0]) {
+        const { secure_url } = await uploadToCloudinary(
+          req.files.video[0].buffer,
+          `videos/${location}-${Date.now()}`
+        );
+        locationData.video = secure_url;
+      }
+     console.log(locationData);
+      // Save the new location data to the database
+      const newLocation = new Location(locationData);
+      await newLocation.save();
+  
+      // Respond with success
+      res.status(200).json({ message: "Submitted successfully!", newLocation });
+    } catch (error) {
+      console.error("Error submitting flag:", error);
+      res.status(500).json({
+        message: "Error submitting report",
+        error: error.message || "Internal Server Error",
+      });
+    }
+  };
+  
+  module.exports={registerUser, loginUser, updateUserProfile, getUserProfile, submitMissingPersonReport,getMissingPerson, flagMissing};
