@@ -8,6 +8,7 @@ const {
   submitMissingPersonReport,
   getMissingPerson,
   flagMissing,
+  loginUserMeta,
 } = require("../controller/authController");
 const multer = require("multer");
 
@@ -45,6 +46,8 @@ router.post("/register", registerUser);
 
 //login
 router.post("/login", loginUser);
+//login
+router.post("/loginMeta", loginUserMeta);
 
 // Define the route to get user profile
 router.get("/profile/:email", getUserProfile);

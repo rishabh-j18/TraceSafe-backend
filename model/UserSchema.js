@@ -9,10 +9,12 @@ const UserSchema = new mongoose.Schema(
     username: { type: String, trim: true, required: true, unique: true },
     email: { type: String, required: true, trim: true },
     mobile: { type: Number, required: true },
+    account: { type: String, required: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ["user", "legalman","admin"], default: "user" },
+    role: { type: String, enum: ["user", "legalman","NGO","admin"], default: "user" },
 
     // New Fields
+    credits:{type: Number,default:0},
     aadhar: { type: String, default: "" },
     occupation: { type: String },
     address: { type: String },

@@ -22,7 +22,7 @@ const missingPersonSchema = new mongoose.Schema({
   distinguishingFeatures: { type: String },
   
   // Last seen information
-  lastSeenDate: { type: Date, required: true },
+  lastSeenDate: { type: String, required: true },
   lastSeenLocation: { type: String, required: true },
   clothingDescription: { type: String },
   circumstances: { type: String },
@@ -43,6 +43,10 @@ const missingPersonSchema = new mongoose.Schema({
   languagesSpoken: { type: String },
   otherInfo: { type: String },
 
+  blockchainRecord: [
+    { transactionId: String, reportCount: Number, timestamp: Date }
+  ],
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
